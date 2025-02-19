@@ -192,7 +192,7 @@ jobs:
           mv -f ./wrt/bin/packages/*/*/*.apk packages
           tar -zcf Packages.tar.gz packages
           rm -rf packages feeds.buildinfo version.buildinfo
-          echo "WRT_PACKAGE=$WRT_PW" >> $GITHUB_ENV
+          echo "WRT_PACKAGE=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
       - name: Machine Information
         run: |
