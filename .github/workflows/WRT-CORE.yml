@@ -214,7 +214,7 @@ jobs:
             done
 
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
-            mv -f ./wrt/bin/packages/*/*/*.apk packages
+            mv -f ./wrt/bin/targets/*/*/*.apk packages
             tar -zcf Packages.tar.gz packages
             rm -rf packages feeds.buildinfo version.buildinfo
           fi
