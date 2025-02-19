@@ -224,8 +224,9 @@ jobs:
           cd ./wrt/
           # 创建存放ipk/apk的目录
           mkdir -p ./upload/packages
+          ls ./bin/
           # 假设ipk/apk在./wrt/bin/packages目录下，根据实际情况修改路径
-          find ./wrt/bin/packages -type f \( -name "*.ipk" -o -name "*.apk" \) -exec mv -f {} ./upload/packages \;
+          find ./bin/packages -type f \( -name "*.ipk" -o -name "*.apk" \) -exec mv -f {} ./upload/packages \;
           # 打包成tar.gz文件
           tar -czvf ./upload/packages.tar.gz ./upload/packages
           # 删除临时的packages目录
