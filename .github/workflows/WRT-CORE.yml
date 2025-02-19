@@ -176,6 +176,17 @@ jobs:
 
           make download -j$(nproc)
 
+      - name: Organize Files(整理文件)
+        if: env.WRT_TEST != 'true'
+        run: |
+          cd ./wrt/bin/targets/*/*
+          cat sha256sums
+          cp ./wrt/.config build.config
+          mv -f ./wrt/bin/packages/*/*/*.apk packages
+          tar -zcf Packages.tar.gz packages
+          rm -rf packages feeds.buildinfo version.buildinfo
+          echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
+
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
