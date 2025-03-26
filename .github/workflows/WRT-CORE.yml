@@ -176,17 +176,17 @@ jobs:
 
           make download -j$(nproc)
 
+      # 前面的部分保持不变...
+
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-
           make -j$(nproc) || make -j1 V=s
 
       - name: Machine Information
         run: |
           cd ./wrt/
-
           echo "======================="
           lscpu | grep -E "name|Core|Thread"
           echo "======================="
@@ -195,17 +195,32 @@ jobs:
           du -h --max-depth=1
           echo "======================="
 
+      # 新增的安装包打包步骤放在Package Firmware之前
+      - name: Package IPK/APK
+        run: |
+          cd ./wrt/
+          # 创建存放ipk/apk的目录
+          mkdir -p ./upload/packages
+          # 精确查找bin目录下的ipk/apk文件
+          find ./bin -type f \( -name "*.ipk" -o -name "*.apk" \) -exec mv -f {} ./upload/packages \;
+          # 打包成tar.gz文件
+          tar -czvf ./upload/packages.tar.gz -C ./upload/packages .
+          # 删除临时的packages目录
+          rm -rf ./upload/packages
+
       - name: Package Firmware
         run: |
-          cd ./wrt/ && mkdir ./upload/
+          cd ./wrt/ && mkdir -p ./upload/
 
           cp -f ./.config ./upload/Config_"$WRT_CONFIG"_"$WRT_VER"_"$WRT_DATE".txt
 
           if [[ $WRT_TEST != 'true' ]]; then
             KVER=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)
 
+            # 删除不必要的文件（此时IPK/APK已处理，不受影响）
             find ./bin/targets/ -iregex ".*\(buildinfo\|json\|manifest\|sha256sums\|packages\)$" -exec rm -rf {} +
 
+            # 移动固件文件到upload目录
             for FILE in $(find ./bin/targets/ -type f -iname "*$WRT_TARGET*") ; do
               EXT=$(basename $FILE | cut -d '.' -f 2-)
               NAME=$(basename $FILE | cut -d '.' -f 1 | grep -io "\($WRT_TARGET\).*")
@@ -213,6 +228,7 @@ jobs:
               mv -f $FILE ./upload/$NEW_FILE
             done
 
+            # 移动剩余文件到upload
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
 
             make clean -j$(nproc)
@@ -220,20 +236,7 @@ jobs:
 
           echo "WRT_KVER=${KVER:-none}" >> $GITHUB_ENV
 
-      # 新增的安装包打包步骤
-      - name: Package IPK/APK
-        run: |
-          cd ./wrt/
-          # 创建存放ipk/apk的目录
-          mkdir -p ./upload/packages
-          ls ./bin
-          # 假设ipk/apk在./wrt/bin/packages目录下，根据实际情况修改路径
-          find ./ -type f \( -name "*.ipk" -o -name "*.apk" \) -exec mv -f {} ./upload/packages \;
-          # 打包成tar.gz文件
-          tar -czvf ./upload/packages.tar.gz ./upload/packages
-          # 删除临时的packages目录
-          rm -rf ./upload/packages
-          
+      # 后续的Release步骤保持不变...    
       - name: Release Firmware
         uses: softprops/action-gh-release@v2
         with:
