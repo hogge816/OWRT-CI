@@ -67,7 +67,7 @@ UPDATE_PACKAGE "vnt" "lmq8267/luci-app-vnt" "main"
 UPDATE_PACKAGE "luci-app-ikoolproxy" "ilxp/luci-app-ikoolproxy" "main"
 UPDATE_PACKAGE "luci-app-msd_lite" "ximiTech/luci-app-msd_lite" "main"
 UPDATE_PACKAGE "msd_lite" "ximiTech/msd_lite" "main"
-UPDATE_PACKAGE "luci-app-adguardhome" "kongfl888/luci-app-adguardhome" "master"
+UPDATE_PACKAGE "luci-app-adguardhome" "AdguardTeam/AdGuardHome" "master"
 
 if [[ $WRT_REPO != *"immortalwrt"* ]]; then
 	UPDATE_PACKAGE "qmi-wwan" "immortalwrt/wwan-packages" "master" "pkg"
